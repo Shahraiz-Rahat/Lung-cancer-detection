@@ -1,0 +1,46 @@
+name: google_ml_kit_example
+description: Demonstrates how to use the google_ml_kit plugin.
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  image_picker: ^0.8.9
+  camera: ^0.10.5+2
+  path: ^1.8.2
+  path_provider: ^2.0.15
+
+  google_mlkit_commons:
+  google_mlkit_pose_detection:
+  google_mlkit_selfie_segmentation: ^0.5.0
+  intl: ^0.18.1
+
+dev_dependencies:
+  flutter_lints: ^2.0.2
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/img/
+    - assets/ml/
+
+fonts:
+  - family: poppins
+    fonts:
+      - asset: packages\example\assets\fonts\poppins_bold.ttf
+        weight: 700
+      - asset: packages\example\assets\fonts\Poppins-Light.ttf
+        weight: 300
+      - asset: packages\example\assets\fonts\Poppins-Medium.ttf
+        weight: 500
+      - asset: packages\example\assets\fonts\Poppins-Regular.ttf
+      - asset: packages\example\assets\fonts\Poppins-SemiBold.ttf
+        weight: 600
