@@ -1,4 +1,4 @@
-name: google_ml_kit_example
+name: Kaizen
 description: Demonstrates how to use the google_ml_kit plugin.
 
 publish_to: "none"
@@ -6,7 +6,7 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -16,6 +16,7 @@ dependencies:
   path: ^1.8.2
   path_provider: ^2.0.15
 
+  model_viewer_plus: ^1.6.1
   google_mlkit_commons:
   google_mlkit_pose_detection:
   google_mlkit_selfie_segmentation: ^0.5.0
@@ -25,10 +26,14 @@ dev_dependencies:
   flutter_lints: ^2.0.2
   flutter_test:
     sdk: flutter
+  carapacik_lints: ^1.4.1
 
 flutter:
   uses-material-design: true
   assets:
+    - assets/Astronaut.glb
+    - assets/FullBody.fbx
+    - assets/eva.obj
     - assets/img/
     - assets/ml/
 

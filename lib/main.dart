@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+// ignore: unused_import
+import 'package:http/http.dart' as http;
 import 'view/login/on_boarding_view.dart';
 import 'vision_detector_views/pose_detector_view.dart';
+import 'package:model_viewer_plus/model_viewer_plus.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,6 +23,28 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: false),
       home: OnBoardingView(),
+    );
+  }
+}
+
+class Model extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Model Viewer')),
+        body: const ModelViewer(
+          backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
+          src: 'assets/Astronaut.glb',
+          alt: 'A 3D model of an astronaut',
+          ar: true,
+          arModes: ['scene-viewer', 'webxr', 'quick-look'],
+          autoRotate: true,
+          iosSrc: 'https://modelviewer.dev/shared-assets/models/Astronaut.usdz',
+          disableZoom: true,
+        ),
+      ),
     );
   }
 }
@@ -43,6 +69,12 @@ class Home extends StatelessWidget {
                     title: const Text('Vision APIs'),
                     children: [
                       CustomCard('Pose Detection', PoseDetectorView()),
+                    ],
+                  ),
+                  ExpansionTile(
+                    title: const Text('Anatomy'),
+                    children: [
+                      CustomCard('Choose Anatomy', Model()),
                     ],
                   ),
                 ],
