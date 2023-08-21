@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 import 'detector_view.dart';
+// ignore: unused_import
 import 'landmark_list.dart'; // Import the landmark_list.dart file
 import 'painters/pose_painter.dart';
 
