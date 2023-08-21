@@ -1,3 +1,4 @@
+import 'package:Kaizen/view/home/home_view.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 // import 'package:google_ml_kit_example/vision_detector_views/painters/pose_painter.dart';
@@ -120,12 +121,13 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
         _customDataTable = dataTable;
       });
 
-      _navigateToLandmarkList(
+      _navigateToPDFScreen(
         landmarkInfo,
         xCoordinates,
         yCoordinates,
         zCoordinates,
         likelihoods,
+        inputImage,
       ); // Navigate to LandmarkListScreen
     }
 
@@ -135,23 +137,33 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
     }
   }
 
-  void _navigateToLandmarkList(
+  void _navigateToPDFScreen(
     List<String> landmarkInfo,
     List<double>? xCoordinates,
     List<double> yCoordinates,
     List<double> zCoordinates,
     List<double> likelihoods,
+    InputImage inputImage,
   ) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LandmarkListScreen(
-          landmarkInfo,
-          xCoordinates!,
-          yCoordinates,
-          zCoordinates,
-          likelihoods,
+        builder: (context) => PDFScreen(
+          landmarkInfo: landmarkInfo,
+          xCoordinates: xCoordinates,
+          yCoordinates: yCoordinates,
+          zCoordinates: zCoordinates,
+          likelihoods: likelihoods,
+          inputImage: inputImage, // Pass the image data
         ),
+        // LandmarkListScreen(
+        //   landmarkInfo,
+        //   xCoordinates!,
+        //   yCoordinates,
+        //   zCoordinates,
+        //   likelihoods,
+
+        // ),
       ),
     );
   }

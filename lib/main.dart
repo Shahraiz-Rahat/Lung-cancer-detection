@@ -22,7 +22,8 @@ class MyApp extends StatelessWidget {
           fontFamily: 'poppins',
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: false),
-      home: OnBoardingView(),
+      home: Home(),
+      //OnBoardingView(),
     );
   }
 }

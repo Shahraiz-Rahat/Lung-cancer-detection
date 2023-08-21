@@ -15,7 +15,7 @@ dependencies:
   camera: ^0.10.5+2
   path: ^1.8.2
   path_provider: ^2.0.15
-
+  flutter_pdfview:
   model_viewer_plus: ^1.6.1
   google_mlkit_commons:
   google_mlkit_pose_detection:
