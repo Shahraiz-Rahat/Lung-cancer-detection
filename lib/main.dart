@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 // ignore: unused_import
 import 'package:http/http.dart' as http;
+// ignore: unused_import
 import 'view/login/on_boarding_view.dart';
 import 'vision_detector_views/pose_detector_view.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await FlutterDownloader.initialize();
   runApp(const MyApp());
 }
 

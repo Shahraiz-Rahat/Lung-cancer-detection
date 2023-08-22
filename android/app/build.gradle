@@ -35,6 +35,7 @@ android {
         applicationId "com.google_mlkit_example"
         minSdkVersion 21
         targetSdkVersion 33
+        multiDexEnabled true
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

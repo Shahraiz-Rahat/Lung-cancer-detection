@@ -157,13 +157,12 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
           likelihoods: likelihoods,
           inputImage: inputImage, // Pass the image data
         ),
-        // LandmarkListScreen(
+        //     LandmarkListScreen(
         //   landmarkInfo,
         //   xCoordinates!,
         //   yCoordinates,
         //   zCoordinates,
         //   likelihoods,
-
         // ),
       ),
     );

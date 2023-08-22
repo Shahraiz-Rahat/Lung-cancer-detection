@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<Widget> getAndShowPdf(http.StreamedResponse response) async {
   final dir = await getExternalStorageDirectory();
@@ -75,6 +77,7 @@ class _PDFScreenState extends State<PDFScreen> {
     // Add your request fields here
     request.fields.addAll({
       'coordinates': jsonEncode({
+        'Parts': widget.landmarkInfo,
         'x': widget.xCoordinates,
         'y': widget.yCoordinates,
         'z': widget.zCoordinates,
@@ -94,12 +97,13 @@ class _PDFScreenState extends State<PDFScreen> {
     print("SHAHZEB DEBUG ${request.files}");
 
     http.StreamedResponse response = await request.send();
-// pdfWidget = await getAndShowPdf();
+    // pdfWidget = await getAndShowPdf();
     if (response.statusCode == 200) {
       //  print(await response.stream.bytesToString());
       print('Error 2 : ${response.reasonPhrase}');
       print('Response headers: ${response.headers}');
       pdfWidget = (await getAndShowPdf(response)) as PDFView?;
+      await downloadAndSavePDF(response);
       //  Widget pdfWidget = await getAndShowPdf(response as http.Response);
       setState(() {
         // pdfWidget = pdfWidget;
@@ -114,6 +118,23 @@ class _PDFScreenState extends State<PDFScreen> {
       });
     } else {
       print('Error 3 : ${response.reasonPhrase}');
+    }
+  }
+
+  Future<void> downloadAndSavePDF(http.StreamedResponse response) async {
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      final dir = await getExternalStorageDirectory();
+      final taskId = await FlutterDownloader.enqueue(
+        url: apiUrl, // Use the appropriate URL here
+        savedDir: dir!.path,
+        fileName: 'downloaded_pdf.pdf',
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+      print('Download task ID: $taskId');
+    } else {
+      print('Permission denied');
     }
   }
 
