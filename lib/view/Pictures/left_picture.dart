@@ -27,7 +27,7 @@ class _LeftImagePickerScreen extends State<LeftImagePickerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Right Picture'),
+        title: Text('Left Picture'),
       ),
       body: Center(
         child: Column(

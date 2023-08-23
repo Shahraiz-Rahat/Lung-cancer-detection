@@ -1,4 +1,4 @@
-import 'package:Kaizen/main.dart';
+import 'package:Kaizen/view/Pictures/details_form.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -27,7 +27,7 @@ class _BackImagePickerScreen extends State<BackImagePickerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Right Picture'),
+        title: Text('Back Picture'),
       ),
       body: Center(
         child: Column(
@@ -47,15 +47,15 @@ class _BackImagePickerScreen extends State<BackImagePickerScreen> {
               onPressed: _pickImage,
               child: Text('Pick an Image'),
             ),
-            // if (_pickedImage != null)
-            //   ElevatedButton(
-            //       child: Text('Take Pic From Rigth Side'),
-            //       onPressed: () {
-            //         Navigator.push(
-            //           context,
-            //           MaterialPageRoute(builder: (context) => Home()),
-            //         );
-            //       }),
+            if (_pickedImage != null)
+              ElevatedButton(
+                  child: Text('Enter Details'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DetailsForm()),
+                    );
+                  }),
           ],
         ),
       ),

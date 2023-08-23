@@ -1,4 +1,5 @@
 import 'package:Kaizen/view/Pictures/right_picture.dart';
+import 'package:Kaizen/vision_detector_views/pose_detector_view.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -44,7 +45,12 @@ class _FrontImagePickerScreen extends State<FrontImagePickerScreen> {
               Text('No image selected.'),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _pickImage,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PoseDetectorView()),
+                );
+              }, // _pickImage,
               child: Text('Pick an Image'),
             ),
             if (_pickedImage != null)
