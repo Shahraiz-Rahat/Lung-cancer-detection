@@ -1,4 +1,6 @@
-import 'package:Kaizen/view/home/home_view.dart';
+// import 'package:Kaizen/view/home/home_view.dart';
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 // import 'package:google_ml_kit_example/vision_detector_views/painters/pose_painter.dart';
@@ -10,6 +12,8 @@ import 'landmark_list.dart'; // Import the landmark_list.dart file
 import 'painters/pose_painter.dart';
 
 class PoseDetectorView extends StatefulWidget {
+  PoseDetectorView(File pickedFile);
+
   @override
   State<StatefulWidget> createState() => _PoseDetectorViewState();
 }
@@ -45,7 +49,7 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
     );
   }
 
-  Future<void> _processImage(InputImage inputImage) async {
+  Future<void> _processImage(InputImage pickedFile) async {
     if (!_canProcess) return;
     if (_isBusy) return;
     _isBusy = true;
@@ -53,13 +57,13 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
       _customDataTable = null; // Clear the DataTable
       _text = '';
     });
-    final poses = await _poseDetector.processImage(inputImage);
-    if (inputImage.metadata?.size != null &&
-        inputImage.metadata?.rotation != null) {
+    final poses = await _poseDetector.processImage(pickedFile);
+    if (pickedFile.metadata?.size != null &&
+        pickedFile.metadata?.rotation != null) {
       final painter = PosePainter(
         poses,
-        inputImage.metadata!.size,
-        inputImage.metadata!.rotation,
+        pickedFile.metadata!.size,
+        pickedFile.metadata!.rotation,
         _cameraLensDirection,
       );
       _customPaint = CustomPaint(painter: painter);
@@ -122,14 +126,23 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
         _customDataTable = dataTable;
       });
 
-      _navigateToPDFScreen(
+      _navigateToData(
         landmarkInfo,
         xCoordinates,
         yCoordinates,
         zCoordinates,
         likelihoods,
-        inputImage,
-      ); // Navigate to LandmarkListScreen
+        pickedFile,
+      );
+
+      // _navigateToPDFScreen(
+      //   landmarkInfo,
+      //   xCoordinates,
+      //   yCoordinates,
+      //   zCoordinates,
+      //   likelihoods,
+      //   inputImage,
+      // ); // Navigate to LandmarkListScreen
     }
 
     _isBusy = false;
@@ -138,33 +151,52 @@ class _PoseDetectorViewState extends State<PoseDetectorView> {
     }
   }
 
-  void _navigateToPDFScreen(
+  void _navigateToData(
     List<String> landmarkInfo,
-    List<double>? xCoordinates,
+    List<double> xCoordinates,
     List<double> yCoordinates,
     List<double> zCoordinates,
     List<double> likelihoods,
-    InputImage inputImage,
+    InputImage pickedFile,
   ) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PDFScreen(
-          landmarkInfo: landmarkInfo,
-          xCoordinates: xCoordinates,
-          yCoordinates: yCoordinates,
-          zCoordinates: zCoordinates,
-          likelihoods: likelihoods,
-          inputImage: inputImage, // Pass the image data
-        ),
-        //     LandmarkListScreen(
-        //   landmarkInfo,
-        //   xCoordinates!,
-        //   yCoordinates,
-        //   zCoordinates,
-        //   likelihoods,
-        // ),
-      ),
-    );
+    Navigator.of(context).pop({
+      'landmarkInfo': landmarkInfo,
+      'xCoordinates': xCoordinates,
+      'yCoordinates': yCoordinates,
+      'zCoordinates': zCoordinates,
+      'likelihoods': likelihoods,
+      'inputImage': pickedFile,
+    });
   }
+
+  // void _navigateToPDFScreen(
+  //   List<String> landmarkInfo,
+  //   List<double>? xCoordinates,
+  //   List<double> yCoordinates,
+  //   List<double> zCoordinates,
+  //   List<double> likelihoods,
+  //   InputImage inputImage,
+  // ) {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) =>
+  //       PDFScreen(
+  //         landmarkInfo: landmarkInfo,
+  //         xCoordinates: xCoordinates,
+  //         yCoordinates: yCoordinates,
+  //         zCoordinates: zCoordinates,
+  //         likelihoods: likelihoods,
+  //         inputImage: inputImage, // Pass the image data
+  //       ),
+  //       //     LandmarkListScreen(
+  //       //   landmarkInfo,
+  //       //   xCoordinates!,
+  //       //   yCoordinates,
+  //       //   zCoordinates,
+  //       //   likelihoods,
+  //       // ),
+  //     ),
+  //   );
+  // }
 }

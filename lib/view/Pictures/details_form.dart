@@ -1,4 +1,5 @@
 import 'package:Kaizen/common_widget/round_button.dart';
+import 'package:Kaizen/view/home/home_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -147,7 +148,7 @@ class _DetailsForm extends State<DetailsForm> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Home()),
+                                      builder: (context) => PDFScreen()),
                                 );
                               }),
                         ),

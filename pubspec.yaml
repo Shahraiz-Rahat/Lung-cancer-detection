@@ -40,6 +40,10 @@ flutter:
     - assets/eva.obj
     - assets/img/
     - assets/ml/
+    - assets/img/cardio.png
+    - assets/img/girlHoldDumb.jpg
+    - assets/img/strength.png
+    - assets/img/welcomeBgImage1.png
 
 fonts:
   - family: poppins
