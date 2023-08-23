@@ -16,13 +16,14 @@ dependencies:
   camera: ^0.10.5+2
   path: ^1.8.2
   path_provider: ^2.0.15
-  flutter_pdfview:
+  flutter_pdfview: ^1.2.7
   model_viewer_plus: ^1.6.1
   google_mlkit_commons:
   google_mlkit_pose_detection:
   google_mlkit_selfie_segmentation: ^0.5.0
   intl: ^0.18.1
   permission_handler: ^10.4.3
+  multi_image_picker:
 
 dev_dependencies:
   flutter_lints: ^2.0.2

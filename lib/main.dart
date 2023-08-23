@@ -9,7 +9,8 @@ import 'package:model_viewer_plus/model_viewer_plus.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize();
+  await FlutterDownloader.initialize(debug: true);
+
   runApp(const MyApp());
 }
 
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
           fontFamily: 'poppins',
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: false),
-      home: Home(),
+      home: OnBoardingView(),
       //OnBoardingView(),
     );
   }
@@ -57,7 +58,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Google ML Kit Demo App'),
+        title: Text('Kaizen Health Group'),
         centerTitle: true,
         elevation: 0,
       ),
@@ -71,13 +72,13 @@ class Home extends StatelessWidget {
                   ExpansionTile(
                     title: const Text('Vision APIs'),
                     children: [
-                      CustomCard('Pose Detection', PoseDetectorView()),
+                      CustomCard('Get Started', PoseDetectorView()),
                     ],
                   ),
                   ExpansionTile(
                     title: const Text('Anatomy'),
                     children: [
-                      CustomCard('Choose Anatomy', Model()),
+                      CustomCard('View Anatomy', Model()),
                     ],
                   ),
                 ],
