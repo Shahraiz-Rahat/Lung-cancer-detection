@@ -45,10 +45,12 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
       poses = await detectPoses(_pickedImageXFile);
       posesJson = convertPosesToJson(poses);
       print(jsonEncode(posesJson));
+
+      //Put your code here
     }
 
     setState(() {
-      if (poses != null) {
+      if (poses.length > 0) {
         _posesFound = poses.length;
         Provider.of<UserData>(context, listen: false)
             .updateImageData(type, _pickedImage, posesJson);
@@ -72,10 +74,11 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 165, 204, 240),
       appBar: AppBar(
-        title: Text('${type}  Picture'),
+        title: Text('${type.toUpperCase()}  Picture'),
       ),
       body: Center(
-        child: Column(
+        child: SingleChildScrollView(
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
@@ -146,6 +149,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
               ),
           ],
         ),
+        )
       ),
     );
   }

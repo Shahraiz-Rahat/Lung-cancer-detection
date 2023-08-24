@@ -28,6 +28,7 @@ class _PDFScreenState extends State<PDFScreen> {
   PDFView? pdfWidget;
   bool isPDFRendered = false;
   bool isLoading = false;
+  String? error = "";
 
   String apiUrl =
       'https://api.kaizenposturealignment.com:9080/user/generate_report';
@@ -63,6 +64,7 @@ class _PDFScreenState extends State<PDFScreen> {
             Text('Height: ${userData.selectHeight}'),
             Text('Weight: ${userData.selectWeight}'),
             Text('Gender: ${userData.isMale ? "Male" : "Female"}'),
+            Text(error!)
           ],
         ),
       ),
@@ -87,10 +89,10 @@ class _PDFScreenState extends State<PDFScreen> {
       'name': name,
       'dob': '5-07-97',
       'gender': isMale.toString(),
-      'front_coordinates': jsonEncode(userData.imageData!["back"]["posesJson"]),
+      'front_coordinates': jsonEncode(userData.imageData!["front"]["posesJson"]),
       'back_coordinates': jsonEncode(userData.imageData!["back"]["posesJson"]),
-      'left_coordinates': jsonEncode(userData.imageData!["back"]["posesJson"]),
-      'right_coordinates': jsonEncode(userData.imageData!["back"]["posesJson"]),
+      'left_coordinates': jsonEncode(userData.imageData!["left"]["posesJson"]),
+      'right_coordinates': jsonEncode(userData.imageData!["right"]["posesJson"]),
       'height': selectHeight,
       'weight': selectWeight,
       'fitness': 'Beginner'
@@ -143,6 +145,10 @@ class _PDFScreenState extends State<PDFScreen> {
       });
     } else {
       print('Error 3 : ${response.reasonPhrase}');
+      setState(() {
+        error = "Error generating report ${response.reasonPhrase}";
+        isLoading = false;
+      });
     }
   }
 
