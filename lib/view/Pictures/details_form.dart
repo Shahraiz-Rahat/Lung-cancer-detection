@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/color_extension.dart';
+// ignore: unused_import
 import '../../main.dart';
 
 class DetailsForm extends StatefulWidget {

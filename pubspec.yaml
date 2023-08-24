@@ -25,6 +25,7 @@ dependencies:
   permission_handler: ^10.4.3
   multi_image_picker:
   debouncer_widget: ^1.0.0
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_lints: ^2.0.2
@@ -40,10 +41,10 @@ flutter:
     - assets/eva.obj
     - assets/img/
     - assets/ml/
-    - assets/img/cardio.png
-    - assets/img/girlHoldDumb.jpg
+    - assets/img/superBody.jpg
     - assets/img/strength.png
     - assets/img/welcomeBgImage1.png
+    - assets/img/patliKuri.jpg
 
 fonts:
   - family: poppins

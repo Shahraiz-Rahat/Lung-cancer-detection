@@ -11,10 +11,9 @@ class LeftImagePickerScreen extends StatefulWidget {
 class _LeftImagePickerScreen extends State<LeftImagePickerScreen> {
   File? _pickedImage;
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(ImageSource source) async {
     final ImagePicker _picker = ImagePicker();
-    final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedImage = await _picker.pickImage(source: source);
 
     setState(() {
       if (pickedImage != null) {
@@ -44,12 +43,16 @@ class _LeftImagePickerScreen extends State<LeftImagePickerScreen> {
               Text('No image selected.'),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _pickImage,
-              child: Text('Pick an Image'),
+              onPressed: () => _pickImage(ImageSource.gallery),
+              child: Text('Pick Left Side Image'),
+            ),
+            ElevatedButton(
+              onPressed: () => _pickImage(ImageSource.camera),
+              child: Text('Take a Picture'),
             ),
             if (_pickedImage != null)
               ElevatedButton(
-                  child: Text('Take Pic From Back Side'),
+                  child: Text('Pick Back Side Image'),
                   onPressed: () {
                     Navigator.push(
                       context,

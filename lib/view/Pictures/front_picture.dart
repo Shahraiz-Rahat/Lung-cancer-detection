@@ -11,10 +11,9 @@ class FrontImagePickerScreen extends StatefulWidget {
 class _FrontImagePickerScreen extends State<FrontImagePickerScreen> {
   File? _pickedImage;
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(ImageSource source) async {
     final ImagePicker _picker = ImagePicker();
-    final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedImage = await _picker.pickImage(source: source);
 
     setState(() {
       if (pickedImage != null) {
@@ -44,12 +43,20 @@ class _FrontImagePickerScreen extends State<FrontImagePickerScreen> {
               Text('No image selected.'),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _pickImage,
+              onPressed: () => _pickImage(ImageSource.gallery),
               child: Text('Pick an Image'),
             ),
+            ElevatedButton(
+              onPressed: () => _pickImage(ImageSource.camera),
+              child: Text('Take a Picture'),
+            ),
+            // ElevatedButton(
+            //   onPressed: _pickImage,
+            //   child: Text('Pick an Image'),
+            // ),
             if (_pickedImage != null)
               ElevatedButton(
-                  child: Text('Take Pic From Right Side'),
+                  child: Text('Pick Right Side Image'),
                   onPressed: () {
                     Navigator.push(
                       context,

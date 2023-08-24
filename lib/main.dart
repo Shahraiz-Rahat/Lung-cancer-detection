@@ -1,10 +1,13 @@
+import 'package:Kaizen/user_data_provider.dart';
 import 'package:Kaizen/view/Pictures/front_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 // ignore: unused_import
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 // ignore: unused_import
 import 'view/login/on_boarding_view.dart';
+// ignore: unused_import
 import 'vision_detector_views/pose_detector_view.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,8 +15,13 @@ import 'package:image_picker/image_picker.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(debug: true);
-
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserData(),
+      child: MyApp(),
+    ),
+  );
+  // runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -88,7 +96,7 @@ class Home extends StatelessWidget {
                   ),
                   ExpansionTile(
                     backgroundColor: Colors.cyanAccent,
-                    title: const Text('Select Body Part'),
+                    title: const Text('Select Body Type'),
                     children: [
                       CustomCard('View Anatomy', Model()),
                     ],
