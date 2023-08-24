@@ -1,25 +1,31 @@
 import 'package:Kaizen/common/pose_detector.dart';
+import 'package:Kaizen/common_widget/round_button.dart';
 import 'package:Kaizen/providers/onboarding_provider.dart';
 import 'package:Kaizen/view/Pictures/right_picture.dart';
+import 'package:Kaizen/view/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:provider/provider.dart';
 
-class FrontImagePickerScreen extends StatefulWidget {
+class OnboardingImagePickerScreen extends StatefulWidget {
   @override
-  _FrontImagePickerScreen createState() => _FrontImagePickerScreen();
+  _OnboardingImagePickerScreen createState() => _OnboardingImagePickerScreen();
+  final int index;
+  OnboardingImagePickerScreen({Key? key, required this.index})
+      : super(key: key);
 }
 
-class _FrontImagePickerScreen extends State<FrontImagePickerScreen> {
+class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   File? _pickedImage;
   int? _posesFound = 0;
 
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickImage(ImageSource source, String? type) async {
     ImagePicker? _imagePicker;
     _imagePicker = ImagePicker();
     List<Pose> poses = [];
+    print(type);
     final pickedImage = await _imagePicker.pickImage(source: source);
     if (pickedImage != null) {
       poses = await detectPoses(pickedImage);
@@ -35,13 +41,24 @@ class _FrontImagePickerScreen extends State<FrontImagePickerScreen> {
         // ignore: unused_local_variable
         // Update the picked image in the UserData class
         Provider.of<UserData>(context, listen: false)
-            .updateImageData("front", _pickedImage, poses);
+            .updateImageData(type, _pickedImage, poses);
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    String? type = "front";
+    print(widget.index);
+    if (widget.index == 1) {
+      type = "front";
+    } else if (widget.index == 2) {
+      type = "right";
+    } else if (widget.index == 3) {
+      type = "left";
+    } else if (widget.index == 4) {
+      type = "back";
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('Front Picture'),
@@ -60,12 +77,13 @@ class _FrontImagePickerScreen extends State<FrontImagePickerScreen> {
             else
               Text('No image selected.'),
             SizedBox(height: 20),
+            Text('Pick ${type} image'),
             ElevatedButton(
-              onPressed: () => _pickImage(ImageSource.gallery),
+              onPressed: () => _pickImage(ImageSource.gallery, type),
               child: Text('Pick an Image'),
             ),
             ElevatedButton(
-              onPressed: () => _pickImage(ImageSource.camera),
+              onPressed: () => _pickImage(ImageSource.camera, type),
               child: Text('Take a Picture'),
             ),
             Text("Poses found ${_posesFound.toString()}"),
@@ -73,16 +91,29 @@ class _FrontImagePickerScreen extends State<FrontImagePickerScreen> {
             //   onPressed: _pickImage,
             //   child: Text('Pick an Image'),
             // ),
-            if (_pickedImage != null)
+            if (_pickedImage != null && widget.index <= 3)
               ElevatedButton(
-                  child: Text('Pick Right Side Image'),
+                  child: Text('Next'),
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => RightImagePickerScreen()),
+                          builder: (context) => OnboardingImagePickerScreen(
+                              index: widget.index + 1)),
                     );
                   }),
+            if (_pickedImage != null && widget.index >= 4)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                child: RoundButton(
+                    title: 'View Report',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PDFScreen()),
+                      );
+                    }),
+              ),
           ],
         ),
       ),

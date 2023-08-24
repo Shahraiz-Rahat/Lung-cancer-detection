@@ -1,6 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-// ignore: unused_import
-import 'package:provider/provider.dart';
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 class UserData extends ChangeNotifier {
   bool isAppleHealth = true;
@@ -9,6 +10,8 @@ class UserData extends ChangeNotifier {
   String selectWeight = '66-70 kg';
   bool isMale = true;
   String name = 'John Doe';
+
+  Map<String, dynamic>? imageData = {};
 
   void updateData({
     bool? isAppleHealth,
@@ -24,7 +27,11 @@ class UserData extends ChangeNotifier {
     if (selectWeight != null) this.selectWeight = selectWeight;
     if (isMale != null) this.isMale = isMale;
     if (name != null) this.name = name;
+    notifyListeners();
+  }
 
+  void updateImageData(String? type, File? image, List<Pose> poses) {
+    imageData![type.toString()] = {image: image, poses: poses};
     notifyListeners();
   }
 }

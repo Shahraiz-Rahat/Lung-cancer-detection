@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 // ignore: unnecessary_import
 import 'dart:typed_data';
-import 'package:Kaizen/user_data_provider.dart';
+import 'package:Kaizen/providers/onboarding_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // ignore: unused_import
@@ -31,14 +31,23 @@ class _PDFScreenState extends State<PDFScreen> {
   String apiUrl =
       'https://api.kaizenposturealignment.com:9080/user/generate_report';
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   fetchAndDisplayImage();
+  // }
+
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // ignore: unused_local_variable
+    final userData = Provider.of<UserData>(context); // Access it here if needed
     fetchAndDisplayImage();
   }
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     final userData = Provider.of<UserData>(context);
     return Scaffold(
       appBar: AppBar(
