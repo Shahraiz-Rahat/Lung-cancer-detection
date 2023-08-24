@@ -1,7 +1,9 @@
+import 'package:Kaizen/common/pose_detector.dart';
 import 'package:Kaizen/view/Pictures/right_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 
 class FrontImagePickerScreen extends StatefulWidget {
   @override
@@ -10,14 +12,21 @@ class FrontImagePickerScreen extends StatefulWidget {
 
 class _FrontImagePickerScreen extends State<FrontImagePickerScreen> {
   File? _pickedImage;
+  int? _posesFound = 0;
 
   Future<void> _pickImage(ImageSource source) async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? pickedImage = await _picker.pickImage(source: source);
+    ImagePicker? _imagePicker;
+    _imagePicker = ImagePicker();
+    List<Pose> poses = [];
+    final pickedImage = await _imagePicker?.pickImage(source: source);
+    if (pickedImage != null) {
+      poses = await detectPoses(pickedImage);
+    }
 
     setState(() {
       if (pickedImage != null) {
         _pickedImage = File(pickedImage.path);
+        _posesFound = poses.length;
       }
     });
   }
@@ -50,6 +59,7 @@ class _FrontImagePickerScreen extends State<FrontImagePickerScreen> {
               onPressed: () => _pickImage(ImageSource.camera),
               child: Text('Take a Picture'),
             ),
+            Text("Poses found ${_posesFound.toString()}"),
             // ElevatedButton(
             //   onPressed: _pickImage,
             //   child: Text('Pick an Image'),
