@@ -1,3 +1,4 @@
+import 'package:Kaizen/common/color_extension.dart';
 import 'package:Kaizen/common/pose_detector.dart';
 import 'package:Kaizen/common_widget/round_button.dart';
 import 'package:Kaizen/providers/onboarding_provider.dart';
@@ -48,25 +49,31 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String? type = "front";
+    String? type = "Front";
     print(widget.index);
     if (widget.index == 1) {
-      type = "front";
+      type = "Front";
     } else if (widget.index == 2) {
-      type = "right";
+      type = "Right";
     } else if (widget.index == 3) {
-      type = "left";
+      type = "Left";
     } else if (widget.index == 4) {
-      type = "back";
+      type = "Back";
     }
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 165, 204, 240),
       appBar: AppBar(
-        title: Text('Front Picture'),
+        title: Text('${type}  Picture'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(
+              'Pick Image From ${type} Side ',
+              style: TextStyle(fontSize: 18, color: FitColors.primary),
+            ),
+            SizedBox(height: 20),
             if (_pickedImage != null)
               Image.file(
                 _pickedImage!,
@@ -76,32 +83,48 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
               )
             else
               Text('No image selected.'),
+            if (_pickedImage != null)
+              Text("Poses Found ${_posesFound.toString()}"),
             SizedBox(height: 20),
-            Text('Pick ${type} image'),
-            ElevatedButton(
-              onPressed: () => _pickImage(ImageSource.gallery, type),
-              child: Text('Pick an Image'),
-            ),
-            ElevatedButton(
-              onPressed: () => _pickImage(ImageSource.camera, type),
-              child: Text('Take a Picture'),
-            ),
-            Text("Poses found ${_posesFound.toString()}"),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              ElevatedButton(
+                onPressed: () => _pickImage(ImageSource.gallery, type),
+                child: Text('Pick an Image'),
+              ),
+              ElevatedButton(
+                onPressed: () => _pickImage(ImageSource.camera, type),
+                child: Text('Take a Picture'),
+              ),
+            ]),
             // ElevatedButton(
             //   onPressed: _pickImage,
             //   child: Text('Pick an Image'),
             // ),
             if (_pickedImage != null && widget.index <= 3)
-              ElevatedButton(
-                  child: Text('Next'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => OnboardingImagePickerScreen(
-                              index: widget.index + 1)),
-                    );
-                  }),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                child: RoundButton(
+                    title: 'Next',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => OnboardingImagePickerScreen(
+                                index: widget.index + 1)),
+                      );
+                    }),
+              ),
+            // ElevatedButton(
+            //   style: ButtonStyle(),
+            //     child: Text('Next'),
+            //     onPressed: () {
+            //       Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //             builder: (context) => OnboardingImagePickerScreen(
+            //                 index: widget.index + 1)),
+            //       );
+            //     }),
             if (_pickedImage != null && widget.index >= 4)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
