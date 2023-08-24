@@ -1,6 +1,5 @@
 import 'package:Kaizen/providers/onboarding_provider.dart';
 // ignore: unused_import
-import 'package:Kaizen/view/Pictures/front_picture.dart';
 import 'package:Kaizen/view/Pictures/onboarding_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';

@@ -30,8 +30,8 @@ class UserData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateImageData(String? type, File? image, List<Pose> poses) {
-    imageData![type.toString()] = {image: image, poses: poses};
+  void updateImageData(String? type, File? image, Map<String, dynamic> posesJson) {
+    imageData![type.toString()] = {"image": image, "posesJson": posesJson};
     notifyListeners();
   }
 }

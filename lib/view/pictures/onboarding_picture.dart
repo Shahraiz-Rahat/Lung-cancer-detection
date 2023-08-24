@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:Kaizen/common/color_extension.dart';
 import 'package:Kaizen/common/pose_detector.dart';
 import 'package:Kaizen/common_widget/round_button.dart';
 import 'package:Kaizen/providers/onboarding_provider.dart';
-import 'package:Kaizen/view/Pictures/right_picture.dart';
 import 'package:Kaizen/view/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,46 +20,54 @@ class OnboardingImagePickerScreen extends StatefulWidget {
 }
 
 class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
+  XFile? _pickedImageXFile;
   File? _pickedImage;
   int? _posesFound = 0;
+  bool _isAnalyzed = false;
 
   Future<void> _pickImage(ImageSource source, String? type) async {
     ImagePicker? _imagePicker;
     _imagePicker = ImagePicker();
-    List<Pose> poses = [];
-    print(type);
     final pickedImage = await _imagePicker.pickImage(source: source);
-    if (pickedImage != null) {
-      poses = await detectPoses(pickedImage);
-    }
 
     setState(() {
       if (pickedImage != null) {
+        _pickedImageXFile = pickedImage;
         _pickedImage = File(pickedImage.path);
+      }
+    });
+  }
+
+  Map<String, dynamic> posesJson = {};
+  Future<void> _analyzeImage(type) async {
+    List<Pose> poses = [];
+    if (_pickedImageXFile != null) {
+      poses = await detectPoses(_pickedImageXFile);
+      posesJson = convertPosesToJson(poses);
+      print(jsonEncode(posesJson));
+    }
+
+    setState(() {
+      if (poses != null) {
         _posesFound = poses.length;
-        poses.forEach((element) {
-          print(element);
-        });
-        // ignore: unused_local_variable
-        // Update the picked image in the UserData class
         Provider.of<UserData>(context, listen: false)
-            .updateImageData(type, _pickedImage, poses);
+            .updateImageData(type, _pickedImage, posesJson);
+        _isAnalyzed = true;
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    String? type = "Front";
-    print(widget.index);
+    String? type = "front";
     if (widget.index == 1) {
-      type = "Front";
+      type = "front";
     } else if (widget.index == 2) {
-      type = "Right";
+      type = "right";
     } else if (widget.index == 3) {
-      type = "Left";
+      type = "left";
     } else if (widget.index == 4) {
-      type = "Back";
+      type = "back";
     }
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 165, 204, 240),
@@ -70,7 +79,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Pick Image From ${type} Side ',
+              'Pick Image From ${type.toUpperCase()} Side ',
               style: TextStyle(fontSize: 18, color: FitColors.primary),
             ),
             SizedBox(height: 20),
@@ -100,7 +109,16 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
             //   onPressed: _pickImage,
             //   child: Text('Pick an Image'),
             // ),
-            if (_pickedImage != null && widget.index <= 3)
+            if (_pickedImage != null && widget.index <= 4)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                child: RoundButton(
+                    title: 'Analyze Image',
+                    onPressed: () {
+                      _analyzeImage(type);
+                    }),
+              ),
+            if (_pickedImage != null && _isAnalyzed && widget.index <= 3)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 child: RoundButton(
@@ -114,18 +132,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
                       );
                     }),
               ),
-            // ElevatedButton(
-            //   style: ButtonStyle(),
-            //     child: Text('Next'),
-            //     onPressed: () {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //             builder: (context) => OnboardingImagePickerScreen(
-            //                 index: widget.index + 1)),
-            //       );
-            //     }),
-            if (_pickedImage != null && widget.index >= 4)
+            if (_pickedImage != null && _isAnalyzed && widget.index >= 4)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 child: RoundButton(

@@ -12,3 +12,20 @@ Future<List<Pose>> detectPoses(XFile? pickedFile) async {
     final poses = await _poseDetector.processImage(inputImage);
     return poses;
 }
+
+Map<String, dynamic> convertPosesToJson(List<Pose> poses) {
+  Map<String, dynamic> posesJson = {};
+  for (final Pose pose in poses) {
+    for (final type in pose.landmarks.keys) {
+      final landmark = pose.landmarks[type]!;
+      posesJson[type.toString()] = {
+        "x": landmark.x.toStringAsFixed(2),
+        "y": landmark.y.toStringAsFixed(2),
+        "z": landmark.z.toStringAsFixed(2),
+        "likelihood": landmark.likelihood.toStringAsFixed(2)
+      };
+    }
+  }
+
+  return posesJson;
+}
