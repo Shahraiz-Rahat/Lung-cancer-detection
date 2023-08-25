@@ -36,8 +36,9 @@ class MyApp extends StatelessWidget {
           fontFamily: 'poppins',
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: false),
-      home: //Home(),
-        OnBoardingView(),
+      home: OnboardingImagePickerScreen(index: 1),
+     // Home(),
+       // OnBoardingView(),
     );
   }
 }

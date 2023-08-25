@@ -89,32 +89,24 @@ class _PDFScreenState extends State<PDFScreen> {
       'name': name,
       'dob': '5-07-97',
       'gender': isMale.toString(),
-      'front_coordinates': jsonEncode(userData.imageData!["front"]["posesJson"]),
+      'front_coordinates':
+          jsonEncode(userData.imageData!["front"]["posesJson"]),
       'back_coordinates': jsonEncode(userData.imageData!["back"]["posesJson"]),
       'left_coordinates': jsonEncode(userData.imageData!["left"]["posesJson"]),
-      'right_coordinates': jsonEncode(userData.imageData!["right"]["posesJson"]),
+      'right_coordinates':
+          jsonEncode(userData.imageData!["right"]["posesJson"]),
       'height': selectHeight,
       'weight': selectWeight,
       'fitness': 'Beginner'
     });
 
-    List<String> filesToUpload = [
-      'front',
-      'back',
-      'right',
-      'left'
-    ];
+    List<String> filesToUpload = ['front', 'back', 'right', 'left'];
     File uploadFile;
     filesToUpload.forEach((element) {
       uploadFile = userData.imageData![element]["image"];
-      request.files.add(
-          http.MultipartFile(
-              "${element}_image",
-              uploadFile.readAsBytes().asStream(),
-              uploadFile.lengthSync(),
-              filename: uploadFile.path.split("/").last
-          )
-      );
+      request.files.add(http.MultipartFile("${element}_image",
+          uploadFile.readAsBytes().asStream(), uploadFile.lengthSync(),
+          filename: uploadFile.path.split("/").last));
     });
 
     http.StreamedResponse response = await request.send();
@@ -168,7 +160,7 @@ class _PDFScreenState extends State<PDFScreen> {
 
   Future<void> savePDFFile(Uint8List pdfData) async {
     final dir = await Directory('/storage/emulated/0/Download');
-    final file = File("${dir?.path}/Kaizen_pdf.pdf");
+    final file = File("${dir.path}/Kaizen_pdf.pdf");
 
     await file.writeAsBytes(pdfData);
 
