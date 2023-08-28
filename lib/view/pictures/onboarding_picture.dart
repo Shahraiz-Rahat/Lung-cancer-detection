@@ -39,6 +39,9 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   GyroscopeEvent? gyroscopeEvent;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
   List<double>? _accelerometerValues = [0.0, 0.0, 0.0];
+  late StateSetter _setState;
+
+
 
   @override
   void initState() {
@@ -91,14 +94,17 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   Future<void> _pickVirtualImage() async {
     await _cameraInitialization;
 
+
     if (_cameraController!.value.isInitialized) {
       XFile? capturedImage; // To store the captured image
 
       await showDialog(
         context: context,
         builder: (BuildContext dialogContext) {
-          return StatefulBuilder(
+          return AlertDialog(
+              content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
+              _setState = setState;
               return Scaffold(
                 backgroundColor: Colors.transparent,
                 body: Stack(
@@ -188,14 +194,16 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
                 FloatingActionButtonLocation.centerFloat,
                 extendBodyBehindAppBar: true,
               );
-            } );
+            }
+            )
+          );
+
           }, );
 
-      if (capturedImage != null) {
-        setState(() {
+        _setState(() {
           _accelerometerValues![0];
         });
-      }
+
 
 
       if (capturedImage != null) {
