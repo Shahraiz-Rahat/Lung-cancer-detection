@@ -193,6 +193,13 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
 
       if (capturedImage != null) {
         setState(() {
+          _accelerometerValues![0];
+        });
+      }
+
+
+      if (capturedImage != null) {
+        setState(() {
           _pickedImageXFile = capturedImage;
           _pickedImage = File(capturedImage!.path);
         });
