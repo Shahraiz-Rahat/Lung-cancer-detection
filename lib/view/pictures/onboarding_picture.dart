@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:Kaizen/common/color_extension.dart';
 import 'package:Kaizen/common/pose_detector.dart';
@@ -15,6 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 import '../../common_widget/line_painter.dart';
+import 'line_draw.dart';
 
 class OnboardingImagePickerScreen extends StatefulWidget {
   @override
@@ -35,34 +37,33 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
   StreamSubscription<GyroscopeEvent>? _gyroscopeSubscription;
   GyroscopeEvent? gyroscopeEvent;
-
-  Paint _linePaint = Paint()..color = Colors.red; // Customize the paint color
-  List<Offset> _linePoints = []; // Store the points for drawing lines
+  final _streamSubscriptions = <StreamSubscription<dynamic>>[];
+  List<double>? _accelerometerValues = [0.0, 0.0, 0.0];
 
   @override
   void initState() {
     super.initState();
     initializeCamera(isFrontCamera);
-
-    _gyroscopeSubscription = gyroscopeEvents.listen((event) {
+    _streamSubscriptions
+        .add(accelerometerEvents.listen((AccelerometerEvent event) {
       setState(() {
-        gyroscopeEvent = event;
-        // Update _linePoints based on gyroscope data
-        if (gyroscopeEvent != null) {
-          double rotationAngle =
-              gyroscopeEvent!.x; // Use the angular velocity around the y-axis
-          double screenWidth = MediaQuery.of(context).size.width;
+        double x = event.x, y = event.y, z = event.z;
+        double norm_Of_g =
+            sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+        x = event.x / norm_Of_g;
+        y = event.y / norm_Of_g;
+        z = event.z / norm_Of_g;
 
-          // Calculate new line points based on rotationAngle
-          // Here, we'll move the lines horizontally based on the rotationAngle
-          double deltaX = rotationAngle * 10; // Adjust the factor as needed
-          for (int i = 0; i < _linePoints.length; i++) {
-            _linePoints[i] =
-                Offset(_linePoints[i].dx + deltaX, _linePoints[i].dy);
-          }
-        }
+        double xInclination = -(asin(x) * (180 / pi));
+        double yInclination = (acos(y) * (180 / pi));
+        double zInclination = (atan(z) * (180 / pi));
+
+        setState(() {
+          _accelerometerValues = [xInclination, yInclination, zInclination];
+          print(_accelerometerValues);
+        });
       });
-    });
+    }));
   }
 
   Future<void> initializeCamera(bool useFrontCamera) async {
@@ -83,6 +84,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
     _accelerometerSubscription?.cancel();
     _gyroscopeSubscription?.cancel();
     _cameraController?.dispose();
+    // _stopLineUpdateTimer(); // Stop the line update timer
     super.dispose();
   }
 
@@ -94,79 +96,100 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
 
       await showDialog(
         context: context,
-        builder: (context) => Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Stack(
-            alignment: FractionalOffset.center,
-            children: <Widget>[
-              Positioned.fill(
-                child: AspectRatio(
-                  aspectRatio: _cameraController!.value.aspectRatio,
-                  child: CameraPreview(_cameraController!),
+        builder: (BuildContext dialogContext) {
+          return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Scaffold(
+                backgroundColor: Colors.transparent,
+                body: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    Positioned.fill(
+                      child: AspectRatio(
+                        aspectRatio: _cameraController!.value.aspectRatio,
+                        child: CameraPreview(_cameraController!),
+                      ),
+                    ),
+                    // Positioned.fill(
+                    //   child: Opacity(
+                    //     opacity: 0.3,
+                    //     child: gyroscopeEvent != null
+                    //         ? Transform.rotate(
+                    //             angle: gyroscopeEvent!.x,
+                    //             child: Image.asset(
+                    //               'assets/virtual_image.jpg',
+                    //               fit: BoxFit.fill,
+                    //             ),
+                    //           )
+                    //         : Image.asset(
+                    //             'assets/virtual_image.jpg',
+                    //             fit: BoxFit.fill,
+                    //           ),
+                    //   ),
+                    // ),
+                    Positioned.fill(
+                      child: Opacity(
+                        opacity: 0.7,
+                        child: Image.asset("assets/red_virtual_man_frame.png",
+                            fit: BoxFit.contain),
+                      ),
+                      // CustomPaint(
+                      //   painter: LinePainter(_linePoints, _linePaint),
+                      //   size: Size.infinite,
+                      // ),
+                    ),
+                    Positioned.fill(
+                      child:
+                      Transform.rotate(
+
+                        angle: _accelerometerValues![0],
+                        // Transform.rotate(
+                        //   // angle: bacteria.rotation,
+                        //   angle: 0.25,
+                        // transform: Matrix4.rotationY(0.25),
+                        child: Container(
+                            color: Colors.transparent,
+                            width: 300,
+                            height: 300,
+                            child: Divider(height: 300, color: Colors.white)),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              // Positioned.fill(
-              //   child: Opacity(
-              //     opacity: 0.3,
-              //     child: gyroscopeEvent != null
-              //         ? Transform.rotate(
-              //             angle: gyroscopeEvent!.x,
-              //             child: Image.asset(
-              //               'assets/virtual_image.jpg',
-              //               fit: BoxFit.fill,
-              //             ),
-              //           )
-              //         : Image.asset(
-              //             'assets/virtual_image.jpg',
-              //             fit: BoxFit.fill,
-              //           ),
-              //   ),
-              // ),
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.5,
-                  child: Image.asset("assets/red_virtual_man_frame.png",
-                  fit : BoxFit.contain
-                  ),
+                floatingActionButton: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    FloatingActionButton(
+                      onPressed: () async {
+                        isFrontCamera
+                            ? (isFrontCamera = false)
+                            : (isFrontCamera = true); // Toggle camera
+                        print(isFrontCamera);
+                        await _cameraController!.dispose();
+                        await initializeCamera(isFrontCamera);
+                        setState(() {
+                          _pickVirtualImage();
+                        });
+                      },
+                      child: Icon(Icons.switch_camera),
+                    ),
+                    SizedBox(height: 16),
+                    FloatingActionButton(
+                      onPressed: () async {
+                        capturedImage = await _cameraController!
+                            .takePicture(); // Capture the picture
+                        Navigator.pop(context);
+                      },
+                      child: Icon(Icons.camera),
+                    ),
+                  ],
                 ),
-                // CustomPaint(
-                //   painter: LinePainter(_linePoints, _linePaint),
-                //   size: Size.infinite,
-                // ),
-              ),
-            ],
-          ),
-          floatingActionButton: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FloatingActionButton(
-                onPressed: () async {
-                   isFrontCamera ? (isFrontCamera = false) : (isFrontCamera = true) ; // Toggle camera
-                   print(isFrontCamera);
-                  await _cameraController!.dispose();
-                  await initializeCamera(isFrontCamera);
-                  setState(() {
-                    _pickVirtualImage();
-                  });
-                },
-                child: Icon(Icons.switch_camera),
-              ),
-              SizedBox(height: 16),
-              FloatingActionButton(
-                onPressed: () async {
-                  capturedImage = await _cameraController!
-                      .takePicture(); // Capture the picture
-                  Navigator.pop(context);
-                },
-                child: Icon(Icons.camera),
-              ),
-            ],
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
-          extendBodyBehindAppBar: true,
-        ),
-      );
+                floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+                extendBodyBehindAppBar: true,
+              );
+            } );
+          }, );
 
       if (capturedImage != null) {
         setState(() {
@@ -258,7 +281,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
             if (_pickedImage != null)
               Text("Poses Found ${_posesFound.toString()}"),
             SizedBox(height: 20),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
               ElevatedButton(
                 onPressed: () => _pickImage(ImageSource.gallery, type),
                 child: Text('Pick an Image'),
@@ -270,6 +293,15 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
               ElevatedButton(
                 onPressed: () => _pickVirtualImage(),
                 child: Text('virtual'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LineDraw()),
+                  );
+                },
+                child: Text('Draw line'),
               ),
             ]),
             // ElevatedButton(
