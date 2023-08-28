@@ -49,14 +49,16 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
         gyroscopeEvent = event;
         // Update _linePoints based on gyroscope data
         if (gyroscopeEvent != null) {
-          double rotationAngle = gyroscopeEvent!.x; // Use the angular velocity around the y-axis
+          double rotationAngle =
+              gyroscopeEvent!.x; // Use the angular velocity around the y-axis
           double screenWidth = MediaQuery.of(context).size.width;
 
           // Calculate new line points based on rotationAngle
           // Here, we'll move the lines horizontally based on the rotationAngle
           double deltaX = rotationAngle * 10; // Adjust the factor as needed
           for (int i = 0; i < _linePoints.length; i++) {
-            _linePoints[i] = Offset(_linePoints[i].dx + deltaX, _linePoints[i].dy);
+            _linePoints[i] =
+                Offset(_linePoints[i].dx + deltaX, _linePoints[i].dy);
           }
         }
       });
@@ -84,13 +86,11 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
     super.dispose();
   }
 
-
   Future<void> _pickVirtualImage() async {
     await _cameraInitialization;
 
     if (_cameraController!.value.isInitialized) {
       XFile? capturedImage; // To store the captured image
-      bool isFrontCamera = false; // To keep track of the current camera
 
       await showDialog(
         context: context,
@@ -105,28 +105,34 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
                   child: CameraPreview(_cameraController!),
                 ),
               ),
+              // Positioned.fill(
+              //   child: Opacity(
+              //     opacity: 0.3,
+              //     child: gyroscopeEvent != null
+              //         ? Transform.rotate(
+              //             angle: gyroscopeEvent!.x,
+              //             child: Image.asset(
+              //               'assets/virtual_image.jpg',
+              //               fit: BoxFit.fill,
+              //             ),
+              //           )
+              //         : Image.asset(
+              //             'assets/virtual_image.jpg',
+              //             fit: BoxFit.fill,
+              //           ),
+              //   ),
+              // ),
               Positioned.fill(
                 child: Opacity(
-                  opacity: 0.3,
-                  child: gyroscopeEvent != null
-                      ? Transform.rotate(
-                    angle: gyroscopeEvent!.x,
-                    child: Image.asset(
-                      'assets/virtual_image.jpg',
-                      fit: BoxFit.fill,
-                    ),
-                  )
-                      : Image.asset(
-                    'assets/virtual_image.jpg',
-                    fit: BoxFit.fill,
+                  opacity: 0.5,
+                  child: Image.asset("assets/red_virtual_man_frame.png",
+                  fit : BoxFit.contain
                   ),
                 ),
-              ),
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: LinePainter(_linePoints, _linePaint),
-                  size: Size.infinite,
-                ),
+                // CustomPaint(
+                //   painter: LinePainter(_linePoints, _linePaint),
+                //   size: Size.infinite,
+                // ),
               ),
             ],
           ),
@@ -135,13 +141,12 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
             children: [
               FloatingActionButton(
                 onPressed: () async {
-                  isFrontCamera = !isFrontCamera; // Toggle camera
+                   isFrontCamera ? (isFrontCamera = false) : (isFrontCamera = true) ; // Toggle camera
+                   print(isFrontCamera);
                   await _cameraController!.dispose();
-                  isFrontCamera == false?
-                    await initializeCamera(!isFrontCamera) :
-                    await initializeCamera(isFrontCamera);
+                  await initializeCamera(isFrontCamera);
                   setState(() {
-                     _pickVirtualImage();
+                    _pickVirtualImage();
                   });
                 },
                 child: Icon(Icons.switch_camera),
@@ -149,22 +154,24 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
               SizedBox(height: 16),
               FloatingActionButton(
                 onPressed: () async {
-                  capturedImage = await _cameraController!.takePicture(); // Capture the picture
+                  capturedImage = await _cameraController!
+                      .takePicture(); // Capture the picture
                   Navigator.pop(context);
                 },
                 child: Icon(Icons.camera),
               ),
             ],
           ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
           extendBodyBehindAppBar: true,
         ),
       );
 
       if (capturedImage != null) {
         setState(() {
-            _pickedImageXFile = capturedImage;
-            _pickedImage = File(capturedImage!.path);
+          _pickedImageXFile = capturedImage;
+          _pickedImage = File(capturedImage!.path);
         });
       }
       // if (capturedImage != null) {
@@ -228,11 +235,11 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
         title: Text('${type.toUpperCase()}  Picture'),
       ),
       body: Center(
-        child: SingleChildScrollView(
-          child: Column(
+          child: SingleChildScrollView(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SizedBox(height:5),
+            SizedBox(height: 5),
             Text(
               'Pick Image From ${type.toUpperCase()} Side ',
               style: TextStyle(fontSize: 18, color: FitColors.primary),
@@ -247,7 +254,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
               )
             else
               Text('No image selected.'),
-            SizedBox(height:5),
+            SizedBox(height: 5),
             if (_pickedImage != null)
               Text("Poses Found ${_posesFound.toString()}"),
             SizedBox(height: 20),
@@ -271,7 +278,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
             // ),
             if (_pickedImage != null && widget.index <= 4)
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical:8),
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 8),
                 child: RoundButton(
                     title: 'Analyze Image',
                     onPressed: () {
@@ -306,8 +313,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
               ),
           ],
         ),
-        )
-      ),
+      )),
     );
   }
 }

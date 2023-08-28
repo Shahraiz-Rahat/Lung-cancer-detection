@@ -47,6 +47,8 @@ flutter:
     - assets/img/welcomeBgImage1.png
     - assets/img/patliKuri.jpg
     - assets/virtual_image.jpg
+    - assets/red_virtual_frame.jpg
+    - assets/red_virtual_man_frame.png
 
 fonts:
   - family: poppins
