@@ -204,9 +204,6 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
       if (pickedImage != null) {
         _pickedImageXFile = pickedImage;
         _pickedImage = File(pickedImage.path);
-        // print("👍");
-        // print(_pickedImage?.lengthSync());
-
         _selectedImage = Image.file(File(pickedImage.path));
       }
     });
@@ -225,9 +222,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
 
   void _resetState() {
     setState(() {
-      // _maskImage = null;
       _detectedPose = null;
-      // _imageSize = Size.zero;
     });
   }
 
@@ -253,7 +248,6 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
 
     setState(() {
       if (poses.length > 0) {
-        // _pickedImage = File(pickedImage.path);
         _posesFound = poses.length;
         _isAnalyzed = true;
       }
@@ -274,7 +268,6 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
 
     if (result['isSuccess']) {
       // Image saved successfully
-
       File _savedImage = File("/storage/emulated/0/Pictures/${type}_image.jpg");
 
       setState(() {

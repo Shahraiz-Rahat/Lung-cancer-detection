@@ -30,7 +30,6 @@ Map<String, dynamic> convertPosesToJson(List<Pose> poses) {
       final updatedPose = PoseLandmark1(inFrameLikelihood: landmark.likelihood, position: Point3d(x: landmark.x, y: landmark.y, z: landmark.z), type: PoseLandmarkTypeExtension.fromString(type1) );
       posesList.add(updatedPose);
 
-
       posesJson[type.toString()] = {
         "x": landmark.x.toStringAsFixed(2),
         "y": landmark.y.toStringAsFixed(2),
@@ -39,11 +38,6 @@ Map<String, dynamic> convertPosesToJson(List<Pose> poses) {
       };
     }
   }
-
-  for(final pose in posesList){
-    print(pose.type);
-  }
-  print("✅");
 
   return {"json":posesJson,"list":posesList};
 }
