@@ -14,8 +14,6 @@ import 'dart:io';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:provider/provider.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-
-import '../../common_widget/line_painter.dart';
 import 'line_draw.dart';
 
 class OnboardingImagePickerScreen extends StatefulWidget {
@@ -39,34 +37,11 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   GyroscopeEvent? gyroscopeEvent;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
   List<double>? _accelerometerValues = [0.0, 0.0, 0.0];
-  late StateSetter _setState;
-
-
+  StateSetter? _setState;
 
   @override
   void initState() {
     super.initState();
-    initializeCamera(isFrontCamera);
-    _streamSubscriptions
-        .add(accelerometerEvents.listen((AccelerometerEvent event) {
-      setState(() {
-        double x = event.x, y = event.y, z = event.z;
-        double norm_Of_g =
-            sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
-        x = event.x / norm_Of_g;
-        y = event.y / norm_Of_g;
-        z = event.z / norm_Of_g;
-
-        double xInclination = -(asin(x) * (180 / pi));
-        double yInclination = (acos(y) * (180 / pi));
-        double zInclination = (atan(z) * (180 / pi));
-
-        setState(() {
-          _accelerometerValues = [xInclination, yInclination, zInclination];
-          print(_accelerometerValues);
-        });
-      });
-    }));
   }
 
   Future<void> initializeCamera(bool useFrontCamera) async {
@@ -80,6 +55,25 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
     );
 
     _cameraInitialization = _cameraController!.initialize();
+    _streamSubscriptions
+        .add(accelerometerEvents.listen((AccelerometerEvent event) {
+        double x = event.x, y = event.y, z = event.z;
+        double norm_Of_g =
+        sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+        x = event.x / norm_Of_g;
+        y = event.y / norm_Of_g;
+        z = event.z / norm_Of_g;
+
+        double xInclination = -(asin(x) * (180 / pi));
+        double yInclination = (acos(y) * (180 / pi));
+        double zInclination = (atan(z) * (180 / pi));
+
+        if(_setState != null) {
+          _setState!(() {
+            _accelerometerValues = [xInclination, yInclination, zInclination];
+          });
+        }
+    }));
   }
 
   @override
@@ -92,8 +86,8 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   }
 
   Future<void> _pickVirtualImage() async {
+    initializeCamera(isFrontCamera);
     await _cameraInitialization;
-
 
     if (_cameraController!.value.isInitialized) {
       XFile? capturedImage; // To store the captured image
@@ -102,7 +96,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
         context: context,
         builder: (BuildContext dialogContext) {
           return AlertDialog(
-              content: StatefulBuilder(
+            content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               _setState = setState;
               return Scaffold(
@@ -116,23 +110,6 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
                         child: CameraPreview(_cameraController!),
                       ),
                     ),
-                    // Positioned.fill(
-                    //   child: Opacity(
-                    //     opacity: 0.3,
-                    //     child: gyroscopeEvent != null
-                    //         ? Transform.rotate(
-                    //             angle: gyroscopeEvent!.x,
-                    //             child: Image.asset(
-                    //               'assets/virtual_image.jpg',
-                    //               fit: BoxFit.fill,
-                    //             ),
-                    //           )
-                    //         : Image.asset(
-                    //             'assets/virtual_image.jpg',
-                    //             fit: BoxFit.fill,
-                    //           ),
-                    //   ),
-                    // ),
                     Positioned.fill(
                       child: Opacity(
                         opacity: 0.7,
@@ -147,16 +124,9 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
                     Positioned.fill(
                       child:
                       Transform.rotate(
-
-                        angle: _accelerometerValues![0],
-                        // Transform.rotate(
-                        //   // angle: bacteria.rotation,
-                        //   angle: 0.25,
-                        // transform: Matrix4.rotationY(0.25),
+                        angle: _accelerometerValues![0] * 0.0174533,
                         child: Container(
                             color: Colors.transparent,
-                            width: 300,
-                            height: 300,
                             child: Divider(height: 300, color: Colors.white)),
                       ),
                     ),
@@ -173,9 +143,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
                         print(isFrontCamera);
                         await _cameraController!.dispose();
                         await initializeCamera(isFrontCamera);
-                        setState(() {
-                          _pickVirtualImage();
-                        });
+                        _pickVirtualImage();
                       },
                       child: Icon(Icons.switch_camera),
                     ),
@@ -200,24 +168,12 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
 
           }, );
 
-        _setState(() {
-          _accelerometerValues![0];
-        });
-
-
-
       if (capturedImage != null) {
         setState(() {
           _pickedImageXFile = capturedImage;
           _pickedImage = File(capturedImage!.path);
         });
       }
-      // if (capturedImage != null) {
-      //   _cameraController?.dispose();
-      //   initializeCamera(!isFrontCamera);
-      // }
-      // _cameraController?.dispose();
-      // initializeCamera(isFrontCamera);
     }
   }
 
