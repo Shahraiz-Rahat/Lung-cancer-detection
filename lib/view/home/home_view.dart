@@ -38,6 +38,7 @@ class _PDFScreenState extends State<PDFScreen> {
     super.didChangeDependencies();
     // ignore: unused_local_variable
     final userData = Provider.of<UserData>(context); // Access it here if needed
+
     fetchAndDisplayImage();
   }
 
@@ -102,17 +103,24 @@ class _PDFScreenState extends State<PDFScreen> {
 
     List<String> filesToUpload = ['front', 'back', 'right', 'left'];
     File uploadFile;
-    filesToUpload.forEach((element) {
+    filesToUpload.forEach((element)  {
       uploadFile = userData.imageData![element]["image"];
+
       request.files.add(http.MultipartFile("${element}_image",
           uploadFile.readAsBytes().asStream(), uploadFile.lengthSync(),
           filename: uploadFile.path.split("/").last));
+
     });
 
     http.StreamedResponse response = await request.send();
     // pdfWidget = await getAndShowPdf();
 
     if (response.statusCode == 200) {
+      List<String> filesToDelete = ['front', 'back', 'right', 'left'];
+      filesToDelete.forEach((element)  {
+        File("/storage/emulated/0/Pictures/${element}_image.jpg").delete();
+      });
+
       //  print(await response.stream.bytesToString());
       print('Error 2 : ${response.reasonPhrase}');
       print('Response headers: ${response.headers}');
