@@ -13,7 +13,7 @@ class LinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..strokeWidth = 4
+      ..strokeWidth = 10
       ..strokeCap = StrokeCap.round
       ..color = Colors.white;
 

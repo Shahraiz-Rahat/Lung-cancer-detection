@@ -36,9 +36,10 @@ class MyApp extends StatelessWidget {
           fontFamily: 'poppins',
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: false),
-      home: OnboardingImagePickerScreen(index: 1),
+      home:
+      //OnboardingImagePickerScreen(index: 1),
      // Home(),
-       // OnBoardingView(),
+        OnBoardingView(),
     );
   }
 }
@@ -68,47 +69,76 @@ class Model extends StatelessWidget {
 class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).copyWith(dividerColor: Colors.transparent);
+    var media = MediaQuery.sizeOf(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Kaizen Health Group'),
-        centerTitle: true,
-        elevation: 5,
-      ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  ExpansionTile(
-                    backgroundColor: Colors.cyanAccent,
-                    title: const Text('Get Started'),
+        appBar: AppBar(
+          title: Text('Kaizen Health Care'),
+          centerTitle: true,
+          elevation: 5,
+        ),
+        body: Stack(children: [
+          Image.asset(
+            'assets/img/doc_on_main.jpg',
+            width: media.width,
+            height: media.height,
+            fit: BoxFit.cover,
+          ),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
                     children: [
-                      CustomCard(
-                        'Take Pictures',
-                        OnboardingImagePickerScreen(index: 1),
-                        // PictureScreen(
-                        //   title: "Front Picture",
-                        // )
-                        //  PoseDetectorView()
+                      Theme(
+                        data: theme,
+                        child: ExpansionTile(
+                          // backgroundColor: Colors.cyanAccent,
+                          title: const Text(
+                            'Get Analysis',
+                            style: TextStyle(color: Colors.white),
+                          ),
+
+                          children: [
+                            CustomCard(
+                              'Take Pictures',
+                              OnboardingImagePickerScreen(index: 1),
+                              // PictureScreen(
+                              //   title: "Front Picture",
+                              // )
+                              //  PoseDetectorView()
+                            ),
+                          ],
+                        ),
+                      ),
+                      Divider(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        thickness: 2,
+                        indent: 20,
+                        endIndent: 20,
+                        height: 10,
+                      ),
+                      Theme(
+                        data: theme,
+                        child: ExpansionTile(
+                          // backgroundColor: Colors.cyanAccent,
+                          title: const Text(
+                            'Select Body Type',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          children: [
+                            CustomCard('View Anatomy', Model()),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  ExpansionTile(
-                    backgroundColor: Colors.cyanAccent,
-                    title: const Text('Select Body Type'),
-                    children: [
-                      CustomCard('View Anatomy', Model()),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    );
+        ]));
   }
 }
 
@@ -141,164 +171,5 @@ class CustomCard extends StatelessWidget {
   }
 }
 
-class PictureScreen extends StatefulWidget {
-  final String title;
 
-  PictureScreen({required this.title});
 
-  @override
-  _PictureScreenState createState() => _PictureScreenState();
-}
-
-class _PictureScreenState extends State<PictureScreen> {
-  List<String> capturedImages = [];
-  bool isImageCaptureInProgress = false;
-
-  Future<void> _captureImage() async {
-    if (isImageCaptureInProgress) {
-      return;
-    }
-
-    isImageCaptureInProgress = true;
-
-    final picker = ImagePicker();
-    XFile? pickedFile = await picker.pickImage(
-      source: ImageSource.camera,
-    );
-
-    if (pickedFile != null) {
-      setState(() {
-        capturedImages.add(pickedFile.path);
-      });
-
-      if (capturedImages.length == 4) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetailsScreen(capturedImages),
-          ),
-        );
-      } else {
-        Navigator.of(context).pop(); // Close the current picture screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PictureScreen(
-              title: getTitleForNextImage(capturedImages.length),
-            ),
-          ),
-        );
-      }
-    }
-
-    await Future.delayed(Duration(milliseconds: 500)); // Debounce duration
-    isImageCaptureInProgress = false;
-  }
-
-  String getTitleForNextImage(int index) {
-    if (index == 1) {
-      return 'Right Picture';
-    } else if (index == 2) {
-      return 'Left Picture';
-    } else if (index == 3) {
-      return 'Back Picture';
-    }
-    return 'Unknown Picture';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                _captureImage();
-              },
-              child: Text('Capture Picture'),
-            ),
-            SizedBox(height: 16),
-            Text('Captured Images: ${capturedImages.join(", ")}'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DetailsScreen extends StatelessWidget {
-  final List<dynamic> capturedImages;
-
-  DetailsScreen(this.capturedImages);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Enter Details'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            // Widgets to input details (Name, DOB, Gender)
-
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SubmitScreen(capturedImages),
-                  ),
-                );
-              },
-              child: Text('Next'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SubmitScreen extends StatelessWidget {
-  final List<dynamic> capturedImages;
-
-  SubmitScreen(this.capturedImages);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Submit Report'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            // Display captured images and details
-            Text('Captured ${capturedImages.length} images'),
-
-            ElevatedButton(
-              onPressed: () {
-                // Implement API call to submit data
-                // Include images and pose data in the API call
-
-                // After submission, you can navigate to a success screen or back to the details screen
-              },
-              child: Text('Submit Report'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

@@ -321,10 +321,10 @@ class _Step3ViewState extends State<Step3View> {
                                     name: nameController.text,
                                   );
 
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => Home()),
-                                  );
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(builder: (context) => Home()),
+                                  // );
                                 }),
                           ),
                           Row(

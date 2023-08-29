@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:Kaizen/view/home/virtual_image_capture_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:math';
 
@@ -18,7 +19,6 @@ import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'line_draw.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 import '../../common_widget/line_painter.dart';
@@ -42,6 +42,8 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   bool _isAnalyzed = false;
   GlobalKey _globalKey = GlobalKey();
   ScreenshotController _screenshotController = ScreenshotController();
+  bool _isLoading = false;
+  bool _isDialogVisible = false;
 
   Image? _selectedImage;
   CameraController? _cameraController;
@@ -52,47 +54,10 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   Pose1? _detectedPose;
   ui.Image? _maskImage;
 
-  List<double>? _accelerometerValues = [0.0, 0.0, 0.0];
-  StateSetter? _setState;
 
   @override
   void initState() {
     super.initState();
-  }
-
-  Future<void> initializeCamera(bool useFrontCamera) async {
-    final cameras = await availableCameras();
-    final cameraToUse = useFrontCamera ? cameras.last : cameras.first;
-
-    _cameraController = CameraController(
-      cameraToUse,
-      ResolutionPreset.high,
-      enableAudio: false,
-    );
-
-    _cameraInitialization = _cameraController!.initialize();
-  }
-
-  Future<void> initializeSensors() async {
-    _accelerometerSubscription =
-        accelerometerEvents.listen((AccelerometerEvent event) {
-      double x = event.x, y = event.y, z = event.z;
-      double norm_Of_g =
-      sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
-      x = event.x / norm_Of_g;
-      y = event.y / norm_Of_g;
-      z = event.z / norm_Of_g;
-
-      double xInclination = -(asin(x) * (180 / pi));
-      double yInclination = (acos(y) * (180 / pi));
-      double zInclination = (atan(z) * (180 / pi));
-
-      if (_setState != null) {
-        _setState!(() {
-          _accelerometerValues = [xInclination, yInclination, zInclination];
-        });
-      }
-    });
   }
 
   @override
@@ -103,99 +68,22 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   }
 
   Future<void> _pickVirtualImage() async {
-    await initializeCamera(isFrontCamera);
-    await _cameraInitialization;
+    final pickedVirtualImage = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VirtualImageCaptureScreen(),
+      ),
+    );
 
-    if (_cameraController!.value.isInitialized) {
-      XFile? capturedImage; // To store the captured image
-
-      await showDialog(
-        context: context,
-        builder: (BuildContext dialogContext) {
-          return WillPopScope(
-            onWillPop: () async {
-              _setState = null;
-              _accelerometerSubscription!.cancel();
-              return true;
-            },
-            child: AlertDialog(content: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-            _setState = setState;
-            initializeSensors();
-            return Scaffold(
-              backgroundColor: Colors.transparent,
-              body: Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  Positioned.fill(
-                    child: AspectRatio(
-                      aspectRatio: _cameraController!.value.aspectRatio,
-                      child: CameraPreview(_cameraController!),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: Opacity(
-                      opacity: 0.7,
-                      child: Image.asset("assets/red_virtual_man_frame.png",
-                          fit: BoxFit.contain),
-                    ),
-                    // CustomPaint(
-                    //   painter: LinePainter(_linePoints, _linePaint),
-                    //   size: Size.infinite,
-                    // ),
-                  ),
-                  Positioned.fill(
-                    child: Transform.rotate(
-                      angle: _accelerometerValues![0] * 0.0174533,
-                      child: Container(
-                          color: Colors.transparent,
-                          child: Divider(height: 300, color: Colors.white)),
-                    ),
-                  ),
-                ],
-              ),
-              floatingActionButton: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  FloatingActionButton(
-                    onPressed: () async {
-                      isFrontCamera
-                          ? (isFrontCamera = false)
-                          : (isFrontCamera = true); // Toggle camera
-                      print(isFrontCamera);
-                      await _cameraController!.dispose();
-                      await initializeCamera(isFrontCamera);
-                      _pickVirtualImage();
-                    },
-                    child: Icon(Icons.switch_camera),
-                  ),
-                  SizedBox(height: 16),
-                  FloatingActionButton(
-                    onPressed: () async {
-                      capturedImage = await _cameraController!
-                          .takePicture(); // Capture the picture
-                      Navigator.pop(context);
-                    },
-                    child: Icon(Icons.camera),
-                  ),
-                ],
-              ),
-              floatingActionButtonLocation:
-                  FloatingActionButtonLocation.centerFloat,
-              extendBodyBehindAppBar: true,
-            );
-          })));
-        },
-      );
-
-      if (capturedImage != null) {
-        setState(() {
-          _pickedImageXFile = capturedImage;
-          _pickedImage = File(capturedImage!.path);
-        });
+    setState(() {
+      if (pickedVirtualImage != null) {
+        _pickedImageXFile = pickedVirtualImage;
+        _pickedImage = File(pickedVirtualImage!.path);
+        _selectedImage = Image.file(File(pickedVirtualImage.path));
       }
-    }
+    });
   }
+
 
   Future<void> _pickImage(ImageSource source, String? type) async {
     ImagePicker? _imagePicker;
@@ -283,6 +171,52 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
       print('Image saving failed.');
     }
   }
+  void _showLoadingDialog() {
+    setState(() {
+      _isDialogVisible = true;
+      _isLoading = true;
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Positioned.fill(child:
+                  Opacity(
+              opacity: 1,
+            child: Column(
+              children: [
+                CircularProgressIndicator(),
+                 SizedBox(height: 16),
+                Text('Analyzing Image...'),
+              ],
+            ),
+
+          )
+
+
+              ),
+          ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _hideLoadingDialog() {
+    setState(() {
+      _isDialogVisible = false;
+      _isLoading = false;
+    });
+
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +233,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 165, 204, 240),
       appBar: AppBar(
-        title: Text('${type.toUpperCase()}  Picture'),
+        title: Center(child: Text('${type.toUpperCase()}  PICTURE' ,)),
       ),
       body: Center(
           child: SingleChildScrollView(
@@ -336,27 +270,26 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
             if (_selectedImage != null)
               Text("Poses Found ${_posesFound.toString()}"),
             SizedBox(height: 20),
-            Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
               ElevatedButton(
                 onPressed: () => _pickImage(ImageSource.gallery, type),
                 child: Text('Pick an Image'),
               ),
-              ElevatedButton(
-                onPressed: () => _pickImage(ImageSource.camera, type),
-                child: Text('Take a Picture'),
-              ),
+              // ElevatedButton(
+              //   onPressed: () => _pickImage(ImageSource.camera, type),
+              //   child: Text('Take a Picture'),
+              // ),
               ElevatedButton(
                 onPressed: () => _pickVirtualImage(),
-                child: Text('virtual'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LineDraw()),
-                  );
-                },
-                child: Text('Draw line'),
+                // {
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //       builder: (context) => VirtualImageCaptureScreen(),
+                //     ),
+                //   );
+                // } ,//_pickVirtualImage(),
+                child: Text('Take Picture'),
               ),
             ]),
             // ElevatedButton(
@@ -369,7 +302,11 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
                 child: RoundButton(
                     title: 'Analyze Image',
                     onPressed: () {
-                      _analyzeImage(type);
+                      _showLoadingDialog();
+                      _analyzeImage(type).then((_) {
+                        _hideLoadingDialog();
+                      });
+                      // _analyzeImage(type);
                     }),
               ),
             if (_detectedPose != null &&
