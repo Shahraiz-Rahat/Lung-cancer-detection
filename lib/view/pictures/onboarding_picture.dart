@@ -48,15 +48,10 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
   Future<void>? _cameraInitialization;
   bool isFrontCamera = false;
   StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
-  StreamSubscription<GyroscopeEvent>? _gyroscopeSubscription;
-  GyroscopeEvent? gyroscopeEvent;
   Size _imageSize = Size.zero;
   Pose1? _detectedPose;
   ui.Image? _maskImage;
 
-  Paint _linePaint = Paint()..color = Colors.red; // Customize the paint color
-  List<Offset> _linePoints = []; // Store the points for drawing lines
-  final _streamSubscriptions = <StreamSubscription<dynamic>>[];
   List<double>? _accelerometerValues = [0.0, 0.0, 0.0];
   StateSetter? _setState;
 
@@ -76,11 +71,14 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
     );
 
     _cameraInitialization = _cameraController!.initialize();
-    _streamSubscriptions
-        .add(accelerometerEvents.listen((AccelerometerEvent event) {
+  }
+
+  Future<void> initializeSensors() async {
+    _accelerometerSubscription =
+        accelerometerEvents.listen((AccelerometerEvent event) {
       double x = event.x, y = event.y, z = event.z;
       double norm_Of_g =
-          sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+      sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
       x = event.x / norm_Of_g;
       y = event.y / norm_Of_g;
       z = event.z / norm_Of_g;
@@ -94,20 +92,18 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
           _accelerometerValues = [xInclination, yInclination, zInclination];
         });
       }
-    }));
+    });
   }
 
   @override
   void dispose() {
-    _accelerometerSubscription?.cancel();
-    _gyroscopeSubscription?.cancel();
     _cameraController?.dispose();
     // _stopLineUpdateTimer(); // Stop the line update timer
     super.dispose();
   }
 
   Future<void> _pickVirtualImage() async {
-    initializeCamera(isFrontCamera);
+    await initializeCamera(isFrontCamera);
     await _cameraInitialization;
 
     if (_cameraController!.value.isInitialized) {
@@ -116,9 +112,16 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
       await showDialog(
         context: context,
         builder: (BuildContext dialogContext) {
-          return AlertDialog(content: StatefulBuilder(
+          return WillPopScope(
+            onWillPop: () async {
+              _setState = null;
+              _accelerometerSubscription!.cancel();
+              return true;
+            },
+            child: AlertDialog(content: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
             _setState = setState;
+            initializeSensors();
             return Scaffold(
               backgroundColor: Colors.transparent,
               body: Stack(
@@ -181,7 +184,7 @@ class _OnboardingImagePickerScreen extends State<OnboardingImagePickerScreen> {
                   FloatingActionButtonLocation.centerFloat,
               extendBodyBehindAppBar: true,
             );
-          }));
+          })));
         },
       );
 
